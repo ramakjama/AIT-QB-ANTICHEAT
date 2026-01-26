@@ -39,6 +39,7 @@ shared_scripts {
     'shared/config/marketplace.lua',
     'shared/config/vehicles.lua',
     'shared/config/jobs.lua',
+    'shared/config/anticheat.lua',
 
     -- Enums y constantes
     'shared/enums/*.lua',
@@ -139,6 +140,11 @@ server_scripts {
     'server/engines/justice/wanted.lua',
     'server/engines/justice/jail.lua',
 
+    -- Engines - Anticheat (Protección contra RedEngine, PhazeMenu, etc.)
+    'server/engines/anticheat/signatures.lua',
+    'server/engines/anticheat/validator.lua',
+    'server/engines/anticheat/init.lua',
+
     -- Admin
     'admin/init.lua',
 
@@ -160,9 +166,31 @@ client_scripts {
     'client/modules/character/init.lua',
     'client/modules/vehicles/init.lua',
 
-    -- Jobs del cliente
+    -- Anticheat del cliente (Protección activa)
+    'client/modules/anticheat/init.lua',
+
+    -- Jobs del cliente - Emergencias
     'modules/jobs/police/init.lua',
     'modules/jobs/ambulance/init.lua',
+
+    -- Jobs legales
+    'modules/jobs/mechanic/init.lua',
+    'modules/jobs/taxi/init.lua',
+    'modules/jobs/trucker/init.lua',
+    'modules/jobs/garbage/init.lua',
+    'modules/jobs/fishing/init.lua',
+    'modules/jobs/mining/init.lua',
+    'modules/jobs/lumberjack/init.lua',
+    'modules/jobs/hunting/init.lua',
+    'modules/jobs/delivery/init.lua',
+
+    -- Jobs ilegales
+    'modules/jobs/drugs/init.lua',
+    'modules/jobs/robbery/init.lua',
+    'modules/jobs/chopshop/init.lua',
+    'modules/jobs/weapons/init.lua',
+    'modules/jobs/laundering/init.lua',
+    'modules/jobs/gangs/init.lua',
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════

@@ -542,6 +542,110 @@ INSERT INTO `ait_properties` (`property_id`, `label`, `type`, `tier`, `price`, `
     ('house_2', 'Mansión Vinewood Hills', 'house', 3, 500000, 5000, '{"x":-174.0,"y":497.0,"z":137.0}', '{"x":-174.0,"y":497.0,"z":137.0}', 'high_end_1')
 ON DUPLICATE KEY UPDATE `label` = VALUES(`label`);
 
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+-- ANTICHEAT - SISTEMA DE PROTECCIÓN
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+
+-- Tabla de baneos del anticheat
+CREATE TABLE IF NOT EXISTS `ait_anticheat_bans` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `ban_id` VARCHAR(20) NOT NULL,
+    `identifier` VARCHAR(60) NOT NULL,
+    `player_name` VARCHAR(255) NOT NULL,
+    `reason` TEXT NOT NULL,
+    `detection_type` VARCHAR(50) NOT NULL,
+    `banned_by` VARCHAR(100) NOT NULL DEFAULT 'AIT-Anticheat',
+    `ban_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `expire_time` DATETIME DEFAULT NULL COMMENT 'NULL = permanente',
+    `active` TINYINT(1) NOT NULL DEFAULT 1,
+    `hardware_ids` JSON DEFAULT NULL,
+    `evidence` JSON DEFAULT NULL COMMENT 'Screenshots, logs, etc.',
+    `appeal_status` ENUM('none', 'pending', 'approved', 'denied') NOT NULL DEFAULT 'none',
+    `appeal_notes` TEXT DEFAULT NULL,
+    `unbanned_by` VARCHAR(100) DEFAULT NULL,
+    `unbanned_at` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ban_id` (`ban_id`),
+    KEY `idx_identifier` (`identifier`),
+    KEY `idx_active` (`active`),
+    KEY `idx_expire` (`expire_time`),
+    KEY `idx_detection` (`detection_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de logs del anticheat
+CREATE TABLE IF NOT EXISTS `ait_anticheat_logs` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `identifier` VARCHAR(60) NOT NULL,
+    `player_name` VARCHAR(255) NOT NULL,
+    `detection_type` VARCHAR(50) NOT NULL,
+    `data` JSON NOT NULL,
+    `severity` ENUM('low', 'medium', 'high', 'critical') NOT NULL DEFAULT 'medium',
+    `action_taken` VARCHAR(50) DEFAULT NULL,
+    `timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `server_id` VARCHAR(50) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_identifier` (`identifier`),
+    KEY `idx_detection` (`detection_type`),
+    KEY `idx_timestamp` (`timestamp`),
+    KEY `idx_severity` (`severity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de strikes (advertencias)
+CREATE TABLE IF NOT EXISTS `ait_anticheat_strikes` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `identifier` VARCHAR(60) NOT NULL,
+    `player_name` VARCHAR(255) NOT NULL,
+    `reason` TEXT NOT NULL,
+    `detection_type` VARCHAR(50) NOT NULL,
+    `strike_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `expire_time` DATETIME NOT NULL,
+    `active` TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    KEY `idx_identifier` (`identifier`),
+    KEY `idx_active` (`active`),
+    KEY `idx_expire` (`expire_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de whitelist del anticheat
+CREATE TABLE IF NOT EXISTS `ait_anticheat_whitelist` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `identifier` VARCHAR(60) NOT NULL,
+    `player_name` VARCHAR(255) DEFAULT NULL,
+    `reason` TEXT DEFAULT NULL,
+    `added_by` VARCHAR(100) NOT NULL,
+    `added_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `active` TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `identifier` (`identifier`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de recursos bloqueados detectados
+CREATE TABLE IF NOT EXISTS `ait_anticheat_blocked_resources` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `resource_name` VARCHAR(100) NOT NULL,
+    `signature_matched` VARCHAR(100) NOT NULL,
+    `detected_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `detected_count` INT UNSIGNED NOT NULL DEFAULT 1,
+    `last_detected` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `resource_name` (`resource_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Procedimiento para limpiar logs antiguos
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS `sp_cleanup_anticheat_logs`(IN days_to_keep INT)
+BEGIN
+    DELETE FROM `ait_anticheat_logs` WHERE `timestamp` < DATE_SUB(NOW(), INTERVAL days_to_keep DAY);
+    DELETE FROM `ait_anticheat_strikes` WHERE `expire_time` < NOW();
+END //
+DELIMITER ;
+
+-- Evento para limpieza automática (cada día a las 3 AM)
+CREATE EVENT IF NOT EXISTS `evt_cleanup_anticheat`
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_DATE + INTERVAL 3 HOUR
+DO CALL sp_cleanup_anticheat_logs(30);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
