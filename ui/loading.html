@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIT-QB - Cargando</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+        }
+
+        /* Video de fondo */
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        /* Overlay con gradiente */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                rgba(0,0,0,0.8) 0%,
+                rgba(0,0,0,0.4) 50%,
+                rgba(0,0,0,0.9) 100%);
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px rgba(102, 126, 234, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #888;
+            margin-top: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Centro - Info del servidor */
+        .center-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            min-width: 300px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .info-card p {
+            color: #ccc;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .info-card .stat {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #f093fb;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Footer - Barra de carga */
+        .footer {
+            position: relative;
+            z-index: 10;
+            padding: 40px 60px;
+        }
+
+        .loading-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .loading-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Tips */
+        .tips-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .tip {
+            color: #888;
+            font-size: 1rem;
+            animation: fadeInOut 8s infinite;
+        }
+
+        .tip span {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+
+        /* Música */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .music-control:hover {
+            background: rgba(102, 126, 234, 0.3);
+        }
+
+        .music-control svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+
+        /* Partículas */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: float 15s infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Reglas del servidor */
+        .rules-container {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: 350px;
+        }
+
+        .rules-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rule {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .rule::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: #f093fb;
+        }
+
+        /* Discord/Links */
+        .social-links {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            transform: translateX(-10px);
+        }
+
+        .social-link svg {
+            width: 24px;
+            height: 24px;
+            fill: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <!-- Fondo animado -->
+        <div class="overlay"></div>
+
+        <!-- Partículas -->
+        <div class="particles" id="particles"></div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">AIT-QB</div>
+            <div class="subtitle">Advanced Intelligence Technology</div>
+        </div>
+
+        <!-- Reglas -->
+        <div class="rules-container">
+            <div class="rules-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                REGLAS DEL SERVIDOR
+            </div>
+            <div class="rule">Respeta a todos los jugadores y staff</div>
+            <div class="rule">No uses hacks, cheats o exploits</div>
+            <div class="rule">Interpreta tu personaje de forma realista</div>
+            <div class="rule">No hagas RDM (Random Deathmatch)</div>
+            <div class="rule">No hagas VDM (Vehicle Deathmatch)</div>
+            <div class="rule">Valora tu vida en todo momento</div>
+            <div class="rule">No interrumpas el roleplay de otros</div>
+            <div class="rule">Usa /report para reportar problemas</div>
+        </div>
+
+        <!-- Links sociales -->
+        <div class="social-links">
+            <a href="#" class="social-link">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+                Discord
+            </a>
+            <a href="#" class="social-link">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                </svg>
+                TikTok
+            </a>
+            <a href="#" class="social-link">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/>
+                </svg>
+                Instagram
+            </a>
+            <a href="#" class="social-link">
+                <svg viewBox="0 0 24 24">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+                Twitter
+            </a>
+        </div>
+
+        <!-- Centro - Stats -->
+        <div class="center-content">
+            <div class="info-card">
+                <h3>Jugadores Online</h3>
+                <div class="stat" id="players">0</div>
+                <p>de 2048 slots</p>
+            </div>
+            <div class="info-card">
+                <h3>Ping</h3>
+                <div class="stat" id="ping">--</div>
+                <p>milisegundos</p>
+            </div>
+            <div class="info-card">
+                <h3>Tiempo de espera</h3>
+                <div class="stat" id="queue">0</div>
+                <p>en cola</p>
+            </div>
+        </div>
+
+        <!-- Footer - Loading -->
+        <div class="footer">
+            <div class="loading-info">
+                <div class="loading-text" id="loading-text">Conectando al servidor...</div>
+                <div class="loading-percent" id="loading-percent">0%</div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="tips-container">
+                <div class="tip" id="tip">
+                    <span>TIP:</span> Usa <span>/help</span> para ver todos los comandos disponibles
+                </div>
+            </div>
+        </div>
+
+        <!-- Control de música -->
+        <div class="music-control" id="music-control" onclick="toggleMusic()">
+            <svg id="music-icon" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Partículas
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Tips
+        const tips = [
+            'Usa <span>/help</span> para ver todos los comandos disponibles',
+            'Presiona <span>F1</span> para abrir tu teléfono',
+            'Presiona <span>TAB</span> para ver tu inventario',
+            'Usa <span>/report</span> para reportar problemas',
+            'Presiona <span>B</span> para abrocharte el cinturón',
+            'Presiona <span>F7</span> para ocultar el HUD',
+            'Usa <span>/ooc</span> para hablar fuera de personaje',
+            'Interpreta tu personaje de forma realista',
+            'Respeta las zonas seguras del servidor',
+            'Usa <span>/me</span> para acciones roleplay',
+        ];
+
+        let currentTip = 0;
+        function rotateTips() {
+            const tipElement = document.getElementById('tip');
+            tipElement.innerHTML = '<span>TIP:</span> ' + tips[currentTip];
+            currentTip = (currentTip + 1) % tips.length;
+        }
+        setInterval(rotateTips, 8000);
+
+        // Simular carga
+        let progress = 0;
+        const loadingTexts = [
+            'Conectando al servidor...',
+            'Cargando mapa...',
+            'Cargando vehículos...',
+            'Cargando scripts...',
+            'Sincronizando datos...',
+            'Preparando mundo...',
+            'Cargando personajes...',
+            'Finalizando...',
+        ];
+
+        function updateProgress() {
+            if (progress < 100) {
+                progress += Math.random() * 3;
+                if (progress > 100) progress = 100;
+
+                document.getElementById('progress-bar').style.width = progress + '%';
+                document.getElementById('loading-percent').textContent = Math.floor(progress) + '%';
+
+                const textIndex = Math.min(Math.floor(progress / 12.5), loadingTexts.length - 1);
+                document.getElementById('loading-text').textContent = loadingTexts[textIndex];
+
+                setTimeout(updateProgress, 100 + Math.random() * 200);
+            }
+        }
+        updateProgress();
+
+        // Simular jugadores
+        document.getElementById('players').textContent = Math.floor(Math.random() * 500 + 100);
+        document.getElementById('ping').textContent = Math.floor(Math.random() * 50 + 20);
+        document.getElementById('queue').textContent = Math.floor(Math.random() * 10);
+
+        // Control de música
+        let musicPlaying = false;
+        function toggleMusic() {
+            const audio = document.getElementById('bg-music');
+            const icon = document.getElementById('music-icon');
+
+            if (musicPlaying) {
+                audio.pause();
+                icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            } else {
+                audio.play();
+                icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // Handlers de FiveM
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+
+            if (data.eventName === 'loadProgress') {
+                document.getElementById('progress-bar').style.width = data.loadFraction * 100 + '%';
+                document.getElementById('loading-percent').textContent = Math.floor(data.loadFraction * 100) + '%';
+            }
+
+            if (data.eventName === 'setServerData') {
+                if (data.players) {
+                    document.getElementById('players').textContent = data.players;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

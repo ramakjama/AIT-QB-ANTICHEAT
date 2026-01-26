@@ -147,6 +147,7 @@ server_scripts {
 
     -- Admin
     'admin/init.lua',
+    'admin/commands.lua',
 
     -- Server Handlers
     'server/handlers/jobs.lua',
@@ -199,6 +200,9 @@ client_scripts {
     -- Módulos adicionales del cliente
     'client/modules/phone/init.lua',
     'client/modules/housing/init.lua',
+    'client/modules/admin/init.lua',
+    'client/modules/scoreboard/init.lua',
+    'client/modules/inventory/init.lua',
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
