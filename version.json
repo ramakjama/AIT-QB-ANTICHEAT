@@ -1,0 +1,64 @@
+{
+    "name": "ait-qb",
+    "version": "1.0.0",
+    "description": "Advanced Intelligence Technology - Framework QBCore para FiveM",
+    "author": "AIT-QB Team",
+    "license": "MIT",
+    "repository": "https://github.com/ait-qb/ait-qb",
+    "fivem": {
+        "game": "gta5",
+        "fx_version": "cerulean",
+        "lua_version": "5.4"
+    },
+    "features": {
+        "slots": 2048,
+        "language": "es",
+        "engines": [
+            "economy",
+            "inventory",
+            "factions",
+            "missions",
+            "events",
+            "vehicles",
+            "housing",
+            "combat",
+            "ai",
+            "justice"
+        ],
+        "integrations": [
+            "qb-core",
+            "ox_lib",
+            "ox_inventory",
+            "oxmysql"
+        ]
+    },
+    "requirements": {
+        "server": {
+            "artifacts": "7290+",
+            "onesync": "infinity",
+            "mysql": "8.0+"
+        },
+        "resources": [
+            "qb-core",
+            "oxmysql",
+            "ox_lib"
+        ]
+    },
+    "changelog": {
+        "1.0.0": {
+            "date": "2024-01-26",
+            "changes": [
+                "Lanzamiento inicial",
+                "10 engines principales",
+                "Sistema de economía con doble entrada",
+                "Sistema de misiones procedurales",
+                "Sistema de facciones dinámicas",
+                "Sistema de vehículos completo",
+                "Sistema de propiedades",
+                "Sistema de combate y muerte",
+                "Sistema de IA/NPCs",
+                "Sistema de justicia"
+            ]
+        }
+    }
+}
