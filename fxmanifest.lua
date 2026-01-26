@@ -153,6 +153,16 @@ server_scripts {
 client_scripts {
     -- Core del cliente
     'client/main.lua',
+
+    -- Módulos del cliente
+    'client/modules/hud/init.lua',
+    'client/modules/interactions/init.lua',
+    'client/modules/character/init.lua',
+    'client/modules/vehicles/init.lua',
+
+    -- Jobs del cliente
+    'modules/jobs/police/init.lua',
+    'modules/jobs/ambulance/init.lua',
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
