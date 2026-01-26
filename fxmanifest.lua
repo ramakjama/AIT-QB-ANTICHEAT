@@ -148,6 +148,10 @@ server_scripts {
     -- Admin
     'admin/init.lua',
 
+    -- Server Handlers
+    'server/handlers/jobs.lua',
+    'server/handlers/phone.lua',
+
     -- Server principal
     'server/main.lua',
 }
@@ -191,6 +195,10 @@ client_scripts {
     'modules/jobs/weapons/init.lua',
     'modules/jobs/laundering/init.lua',
     'modules/jobs/gangs/init.lua',
+
+    -- Módulos adicionales del cliente
+    'client/modules/phone/init.lua',
+    'client/modules/housing/init.lua',
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
@@ -214,8 +222,8 @@ files {
     -- Datos de loot
     'data/loot/tables.lua',
 
-    -- UI (cuando se implemente)
-    'ui/dist/**/*',
+    -- UI
+    'ui/**/*',
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════

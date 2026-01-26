@@ -18,7 +18,13 @@ Anticheat.Initialized = false
 function Anticheat.Initialize()
     if Anticheat.Initialized then return end
 
-    print("^2[AIT-ANTICHEAT]^0 Inicializando sistema de protección...")
+    print("^2[AIT-QB ANTICHEAT]^0 Inicializando sistema de protección...")
+
+    -- Verificar dependencia de MySQL
+    if not MySQL then
+        print("^1[AIT-QB ANTICHEAT]^0 ERROR: MySQL no está disponible. Algunas funciones estarán desactivadas.")
+        print("^1[AIT-QB ANTICHEAT]^0 Asegúrate de tener oxmysql instalado y configurado.")
+    end
 
     -- Cargar lista de baneos
     Anticheat.LoadBans()
@@ -35,8 +41,8 @@ function Anticheat.Initialize()
     Anticheat.RegisterExports()
 
     Anticheat.Initialized = true
-    print("^2[AIT-ANTICHEAT]^0 Sistema de protección ACTIVO")
-    print("^2[AIT-ANTICHEAT]^0 Protección contra: RedEngine, PhazeMenu, Eulen, Lynx, y más")
+    print("^2[AIT-QB ANTICHEAT]^0 Sistema de protección ACTIVO")
+    print("^2[AIT-QB ANTICHEAT]^0 Protección contra: RedEngine, PhazeMenu, Eulen, Lynx, y más")
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
@@ -44,6 +50,11 @@ end
 -- ═══════════════════════════════════════════════════════════════════════════════════════
 
 function Anticheat.LoadBans()
+    if not MySQL or not MySQL.Async then
+        print("^3[AIT-QB ANTICHEAT]^0 MySQL no disponible, baneos no cargados desde DB")
+        return
+    end
+
     MySQL.Async.fetchAll('SELECT * FROM ait_anticheat_bans WHERE (expire_time IS NULL OR expire_time > NOW()) AND active = 1', {}, function(results)
         if results then
             for _, ban in ipairs(results) do
@@ -55,7 +66,7 @@ function Anticheat.LoadBans()
                     detection_type = ban.detection_type,
                 }
             end
-            print(string.format("^2[AIT-ANTICHEAT]^0 Cargados %d baneos activos", #results))
+            print(string.format("^2[AIT-QB ANTICHEAT]^0 Cargados %d baneos activos", #results))
         end
     end)
 end
@@ -108,7 +119,7 @@ function Anticheat.CheckResource(resourceName)
 
     if not isWhitelisted and Config.Anticheat.Detection.ResourceInjection.BlockUnauthorizedResources then
         -- Recurso no autorizado
-        print(string.format("^1[AIT-ANTICHEAT]^0 Recurso no autorizado detectado: %s", resourceName))
+        print(string.format("^1[AIT-QB ANTICHEAT]^0 Recurso no autorizado detectado: %s", resourceName))
         Anticheat.LogDetection(nil, "resource_injection", {
             resource = resourceName,
             action = "blocked"
@@ -120,7 +131,7 @@ function Anticheat.CheckResource(resourceName)
 end
 
 function Anticheat.OnCheatResourceDetected(resourceName, signature)
-    print(string.format("^1[AIT-ANTICHEAT] ¡ALERTA CRÍTICA! Recurso de cheat detectado: %s (firma: %s)^0", resourceName, signature))
+    print(string.format("^1[AIT-QB ANTICHEAT] ¡ALERTA CRÍTICA! Recurso de cheat detectado: %s (firma: %s)^0", resourceName, signature))
 
     -- Detener el recurso inmediatamente
     StopResource(resourceName)
@@ -162,7 +173,7 @@ function Anticheat.OnBlockedEventTriggered(source, eventName, args)
 
     local player = Anticheat.GetPlayerInfo(source)
 
-    print(string.format("^1[AIT-ANTICHEAT] Evento bloqueado ejecutado por %s: %s^0", player.name, eventName))
+    print(string.format("^1[AIT-QB ANTICHEAT] Evento bloqueado ejecutado por %s: %s^0", player.name, eventName))
 
     Anticheat.LogDetection(source, "blocked_event", {
         event = eventName,
@@ -261,7 +272,7 @@ end
 function Anticheat.OnTeleportDetected(source, oldCoords, newCoords, distance)
     local player = Anticheat.GetPlayerInfo(source)
 
-    print(string.format("^3[AIT-ANTICHEAT] Teleport detectado: %s (%.2f metros)^0", player.name, distance))
+    print(string.format("^3[AIT-QB ANTICHEAT] Teleport detectado: %s (%.2f metros)^0", player.name, distance))
 
     Anticheat.LogDetection(source, "teleport", {
         from = json.encode(oldCoords),
@@ -275,7 +286,7 @@ end
 function Anticheat.OnSpeedHackDetected(source, currentSpeed, maxSpeed)
     local player = Anticheat.GetPlayerInfo(source)
 
-    print(string.format("^3[AIT-ANTICHEAT] SpeedHack detectado: %s (%.2f m/s, max: %.2f)^0",
+    print(string.format("^3[AIT-QB ANTICHEAT] SpeedHack detectado: %s (%.2f m/s, max: %.2f)^0",
         player.name, currentSpeed, maxSpeed))
 
     Anticheat.LogDetection(source, "speedhack", {
@@ -289,7 +300,7 @@ end
 function Anticheat.OnGodmodeDetected(source)
     local player = Anticheat.GetPlayerInfo(source)
 
-    print(string.format("^1[AIT-ANTICHEAT] GODMODE detectado: %s^0", player.name))
+    print(string.format("^1[AIT-QB ANTICHEAT] GODMODE detectado: %s^0", player.name))
 
     Anticheat.LogDetection(source, "godmode", {})
 
@@ -299,7 +310,7 @@ end
 function Anticheat.OnWeaponExploit(source, weaponHash, reason)
     local player = Anticheat.GetPlayerInfo(source)
 
-    print(string.format("^3[AIT-ANTICHEAT] Exploit de arma detectado: %s - %s^0", player.name, reason))
+    print(string.format("^3[AIT-QB ANTICHEAT] Exploit de arma detectado: %s - %s^0", player.name, reason))
 
     Anticheat.LogDetection(source, "weapon_exploit", {
         weapon = weaponHash,
@@ -312,7 +323,7 @@ end
 function Anticheat.OnMoneyExploit(source, amount, reason)
     local player = Anticheat.GetPlayerInfo(source)
 
-    print(string.format("^1[AIT-ANTICHEAT] Exploit de dinero detectado: %s - $%d - %s^0",
+    print(string.format("^1[AIT-QB ANTICHEAT] Exploit de dinero detectado: %s - $%d - %s^0",
         player.name, amount, reason))
 
     Anticheat.LogDetection(source, "money_exploit", {
@@ -329,7 +340,7 @@ end
 
 function Anticheat.Punish(source, detectionType, reason)
     if Anticheat.IsWhitelisted(source) then
-        print(string.format("^2[AIT-ANTICHEAT] Jugador whitelisted, ignorando: %s^0", detectionType))
+        print(string.format("^2[AIT-QB ANTICHEAT] Jugador whitelisted, ignorando: %s^0", detectionType))
         return
     end
 
@@ -374,14 +385,14 @@ function Anticheat.WarnPlayer(source, reason)
     TriggerClientEvent('ait-qb:client:anticheat:warn', source, reason)
 
     local player = Anticheat.GetPlayerInfo(source)
-    print(string.format("^3[AIT-ANTICHEAT] ADVERTENCIA a %s: %s^0", player.name, reason))
+    print(string.format("^3[AIT-QB ANTICHEAT] ADVERTENCIA a %s: %s^0", player.name, reason))
 end
 
 function Anticheat.KickPlayer(source, reason)
     local player = Anticheat.GetPlayerInfo(source)
     local kickMsg = string.format(Config.AnticheatMessages.KickMessage, reason)
 
-    print(string.format("^1[AIT-ANTICHEAT] KICK a %s: %s^0", player.name, reason))
+    print(string.format("^1[AIT-QB ANTICHEAT] KICK a %s: %s^0", player.name, reason))
 
     DropPlayer(source, kickMsg)
 end
@@ -395,23 +406,25 @@ function Anticheat.BanPlayer(source, reason, detectionType, duration)
         expireTime = os.date("%Y-%m-%d %H:%M:%S", os.time() + duration)
     end
 
-    -- Guardar en base de datos
-    MySQL.Async.execute([[
-        INSERT INTO ait_anticheat_bans
-        (ban_id, identifier, player_name, reason, detection_type, banned_by, ban_time, expire_time, active, hardware_ids)
-        VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, 1, ?)
-    ]], {
-        banId,
-        player.identifier,
-        player.name,
-        reason,
-        detectionType,
-        "AIT-Anticheat",
-        expireTime,
-        json.encode(player.hwids or {})
-    })
+    -- Guardar en base de datos si está disponible
+    if MySQL and MySQL.Async then
+        MySQL.Async.execute([[
+            INSERT INTO ait_anticheat_bans
+            (ban_id, identifier, player_name, reason, detection_type, banned_by, ban_time, expire_time, active, hardware_ids)
+            VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, 1, ?)
+        ]], {
+            banId,
+            player.identifier,
+            player.name,
+            reason,
+            detectionType,
+            "AIT-Anticheat",
+            expireTime,
+            json.encode(player.hwids or {})
+        })
+    end
 
-    -- Agregar a cache
+    -- Agregar a cache (funciona incluso sin DB)
     Anticheat.BannedPlayers[player.identifier] = {
         reason = reason,
         banned_by = "AIT-Anticheat",
@@ -420,7 +433,7 @@ function Anticheat.BanPlayer(source, reason, detectionType, duration)
     }
 
     local banMsg = string.format(Config.AnticheatMessages.BanMessage, banId)
-    print(string.format("^1[AIT-ANTICHEAT] BAN a %s: %s (ID: %s)^0", player.name, reason, banId))
+    print(string.format("^1[AIT-QB ANTICHEAT] BAN a %s: %s (ID: %s)^0", player.name, reason, banId))
 
     DropPlayer(source, banMsg)
 end
@@ -526,19 +539,22 @@ end
 function Anticheat.LogDetection(source, detectionType, data)
     local player = source and Anticheat.GetPlayerInfo(source) or {name = "Server", identifier = "server"}
 
-    MySQL.Async.execute([[
-        INSERT INTO ait_anticheat_logs
-        (identifier, player_name, detection_type, data, timestamp)
-        VALUES (?, ?, ?, ?, NOW())
-    ]], {
-        player.identifier,
-        player.name,
-        detectionType,
-        json.encode(data)
-    })
+    -- Guardar en base de datos si está disponible
+    if MySQL and MySQL.Async then
+        MySQL.Async.execute([[
+            INSERT INTO ait_anticheat_logs
+            (identifier, player_name, detection_type, data, timestamp)
+            VALUES (?, ?, ?, ?, NOW())
+        ]], {
+            player.identifier,
+            player.name,
+            detectionType,
+            json.encode(data)
+        })
+    end
 
     if Config.Anticheat.Debug then
-        print(string.format("^5[AIT-ANTICHEAT DEBUG] %s: %s - %s^0",
+        print(string.format("^5[AIT-QB ANTICHEAT DEBUG] %s: %s - %s^0",
             detectionType, player.name, json.encode(data)))
     end
 end

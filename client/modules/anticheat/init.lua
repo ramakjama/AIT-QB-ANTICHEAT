@@ -33,7 +33,7 @@ CreateThread(function()
     ClientAC.StartWeaponMonitor()
     ClientAC.StartHealthMonitor()
 
-    print("^2[AIT-ANTICHEAT CLIENT]^0 Sistema de protección activo")
+    print("^2[AIT-QB ANTICHEAT CLIENT]^0 Sistema de protección activo")
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
@@ -370,18 +370,16 @@ CreateThread(function()
     end
 end)
 
--- Bloquear teclas de menús de cheat comunes
+-- Monitoreo de teclas sospechosas (desactivado por defecto para evitar falsos positivos)
+-- Puedes activar esto si quieres monitorear combinaciones específicas
+--[[
 CreateThread(function()
     while true do
         Wait(0)
-
-        -- Teclas comúnmente usadas por menús de cheat
-        -- F8 (abre consola, usada por algunos trainers)
-        -- INSERT, DELETE, HOME, END, PAGE UP, PAGE DOWN
-        -- Estas teclas por sí solas no son indicativas, pero
-        -- podemos monitorear combinaciones sospechosas
+        -- Implementar detección de combinaciones de teclas si es necesario
     end
 end)
+]]
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
 -- UTILIDADES
@@ -407,7 +405,7 @@ function ClientAC.ReportDetection(detectionType, data)
     end
     ClientAC.Detections[key] = GetGameTimer()
 
-    print(string.format("^1[AIT-ANTICHEAT CLIENT] Detección: %s - %s^0", detectionType, data.reason or ""))
+    print(string.format("^1[AIT-QB ANTICHEAT CLIENT] Detección: %s - %s^0", detectionType, data.reason or ""))
 
     -- Enviar al servidor
     TriggerServerEvent('ait-qb:server:anticheat:detection', detectionType, data)
@@ -478,13 +476,17 @@ end)
 -- Proteger contra inyección de código via eventos
 local originalTriggerServerEvent = TriggerServerEvent
 _G.TriggerServerEvent = function(eventName, ...)
-    -- Verificar si el evento está bloqueado
-    for _, blocked in ipairs(Config.Anticheat.CheatSignatures.Events) do
-        if string.find(eventName, blocked) then
-            ClientAC.ReportDetection("event_injection", {
-                reason = string.format("Intento de trigger bloqueado: %s", eventName)
-            })
-            return
+    -- Solo verificar eventos que no sean del propio recurso
+    if not string.find(eventName, "ait%-qb:") then
+        -- Verificar si el evento coincide exactamente con uno bloqueado
+        for _, blocked in ipairs(Config.Anticheat.CheatSignatures.Events) do
+            -- Usar comparación exacta para evitar falsos positivos
+            if eventName == blocked then
+                ClientAC.ReportDetection("event_injection", {
+                    reason = string.format("Evento bloqueado: %s", eventName)
+                })
+                return
+            end
         end
     end
 

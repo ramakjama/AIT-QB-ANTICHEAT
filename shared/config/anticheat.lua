@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════════════════
--- AIT-QB ANTICHEAT CONFIGURATION
+-- AIT-QB ANTICHEAT - CONFIGURATION
 -- Sistema de defensa contra RedEngine, PhazeMenu, y todos los menús de hack
 -- ═══════════════════════════════════════════════════════════════════════════════════════
 

@@ -49,7 +49,7 @@ end
 function Validator.OnRateLimitExceeded(source, eventName, calls, maxCalls)
     local player = _G.Anticheat and _G.Anticheat.GetPlayerInfo(source) or {name = "Unknown"}
 
-    print(string.format("^3[AIT-ANTICHEAT] Rate limit excedido: %s - %s (%d/%d)^0",
+    print(string.format("^3[AIT-QB ANTICHEAT] Rate limit excedido: %s - %s (%d/%d)^0",
         player.name, eventName, calls, maxCalls))
 
     if _G.Anticheat then
@@ -256,7 +256,7 @@ function Validator.SecureEvent(eventName, category, handler)
         if isProtected then
             -- Aquí puedes agregar validaciones adicionales
             if Config.Anticheat.Debug then
-                print(string.format("^5[AIT-ANTICHEAT] Evento protegido: %s por source %s^0", eventName, source))
+                print(string.format("^5[AIT-QB ANTICHEAT] Evento protegido: %s por source %s^0", eventName, source))
             end
         end
 
