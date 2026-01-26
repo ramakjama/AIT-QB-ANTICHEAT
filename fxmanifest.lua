@@ -144,6 +144,9 @@ server_scripts {
     'server/engines/anticheat/signatures.lua',
     'server/engines/anticheat/validator.lua',
     'server/engines/anticheat/init.lua',
+    'server/engines/anticheat/commands.lua',
+    'server/engines/anticheat/advanced.lua',
+    'server/engines/anticheat/panel.lua',
 
     -- Admin
     'admin/init.lua',
@@ -173,6 +176,7 @@ client_scripts {
 
     -- Anticheat del cliente (Protección activa)
     'client/modules/anticheat/init.lua',
+    'client/modules/anticheat/nui.lua',
 
     -- Jobs del cliente - Emergencias
     'modules/jobs/police/init.lua',

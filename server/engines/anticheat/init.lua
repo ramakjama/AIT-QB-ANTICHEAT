@@ -573,18 +573,192 @@ function Anticheat.SendDiscordAlert(detectionType, data)
         return
     end
 
-    local embed = {
-        title = Config.AnticheatMessages.Discord.DetectionTitle,
-        description = string.format("**Tipo:** %s\n**Jugador:** %s\n**Razón:** %s",
-            detectionType, data.player or "N/A", data.reason or "N/A"),
-        color = 16711680, -- Rojo
-        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
-        footer = {text = "AIT-QB Anticheat System"}
+    -- Colores según severidad
+    local colors = {
+        critical = 16711680,    -- Rojo
+        high = 16744448,        -- Naranja
+        medium = 16776960,      -- Amarillo
+        low = 65280,            -- Verde
+        info = 3447003,         -- Azul
     }
 
-    PerformHttpRequest(Config.Anticheat.DiscordWebhook, function(err, text, headers) end, 'POST',
-        json.encode({embeds = {embed}}), {['Content-Type'] = 'application/json'})
+    local severity = data.severity or "high"
+    local color = colors[severity] or colors.high
+
+    -- Determinar título e icono según tipo
+    local titles = {
+        cheat_menu = "🚨 MENÚ DE CHEAT DETECTADO",
+        resource_injection = "💉 INYECCIÓN DE RECURSO",
+        teleport = "🔮 TELEPORT DETECTADO",
+        speedhack = "⚡ SPEEDHACK DETECTADO",
+        godmode = "🛡️ GODMODE DETECTADO",
+        money_exploit = "💰 EXPLOIT DE DINERO",
+        weapon_exploit = "🔫 EXPLOIT DE ARMAS",
+        vehicle_exploit = "🚗 EXPLOIT DE VEHÍCULOS",
+        explosion_spam = "💥 SPAM DE EXPLOSIONES",
+        event_spam = "📡 SPAM DE EVENTOS",
+        event_injection = "⚠️ INYECCIÓN DE EVENTO",
+        blocked_event = "🚫 EVENTO BLOQUEADO",
+        screenshot = "📸 SCREENSHOT CAPTURADO",
+        marked_suspect = "🔍 MARCADO SOSPECHOSO",
+        manual_admin = "👮 ACCIÓN DE ADMIN",
+    }
+
+    local title = titles[detectionType] or "🔍 DETECCIÓN"
+
+    -- Construir campos del embed
+    local fields = {
+        {
+            name = "👤 Jugador",
+            value = data.player or "Desconocido",
+            inline = true
+        },
+        {
+            name = "🏷️ Tipo",
+            value = detectionType,
+            inline = true
+        },
+        {
+            name = "⚠️ Severidad",
+            value = string.upper(severity),
+            inline = true
+        },
+    }
+
+    if data.identifier then
+        table.insert(fields, {
+            name = "🔑 Identifier",
+            value = "```" .. (data.identifier:sub(1, 40)) .. "```",
+            inline = false
+        })
+    end
+
+    if data.reason then
+        table.insert(fields, {
+            name = "📝 Razón",
+            value = data.reason:sub(1, 200),
+            inline = false
+        })
+    end
+
+    if data.action then
+        table.insert(fields, {
+            name = "⚡ Acción",
+            value = string.upper(data.action),
+            inline = true
+        })
+    end
+
+    if data.resource then
+        table.insert(fields, {
+            name = "📦 Recurso",
+            value = "`" .. data.resource .. "`",
+            inline = true
+        })
+    end
+
+    if data.signature then
+        table.insert(fields, {
+            name = "🔍 Firma",
+            value = "`" .. data.signature .. "`",
+            inline = true
+        })
+    end
+
+    local embed = {
+        title = title,
+        color = color,
+        fields = fields,
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+        footer = {
+            text = "AIT-QB ANTICHEAT • Servidor Protegido",
+            icon_url = "https://i.imgur.com/AfFp7pu.png"
+        },
+        thumbnail = {
+            url = "https://i.imgur.com/AfFp7pu.png"
+        }
+    }
+
+    -- Si hay screenshot, añadir como imagen
+    if data.screenshot then
+        embed.image = {url = data.screenshot}
+    end
+
+    local payload = {
+        username = "AIT-QB Anticheat",
+        avatar_url = "https://i.imgur.com/AfFp7pu.png",
+        embeds = {embed}
+    }
+
+    PerformHttpRequest(Config.Anticheat.DiscordWebhook, function(err, text, headers)
+        if err and err ~= 200 and err ~= 204 then
+            print(string.format("^1[AIT-QB ANTICHEAT]^0 Error enviando alerta a Discord: %s", tostring(err)))
+        end
+    end, 'POST', json.encode(payload), {['Content-Type'] = 'application/json'})
 end
+
+-- Enviar resumen diario a Discord
+function Anticheat.SendDailySummary()
+    if not Config.Anticheat.DiscordAlerts or Config.Anticheat.DiscordWebhook == "" then
+        return
+    end
+
+    if not MySQL or not MySQL.Async then return end
+
+    MySQL.Async.fetchAll([[
+        SELECT
+            detection_type,
+            COUNT(*) as count
+        FROM ait_anticheat_logs
+        WHERE timestamp > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        GROUP BY detection_type
+        ORDER BY count DESC
+        LIMIT 10
+    ]], {}, function(results)
+        if not results or #results == 0 then return end
+
+        local statsText = ""
+        local totalDetections = 0
+
+        for _, row in ipairs(results) do
+            statsText = statsText .. string.format("• **%s**: %d\n", row.detection_type, row.count)
+            totalDetections = totalDetections + row.count
+        end
+
+        local embed = {
+            title = "📊 RESUMEN DIARIO - ANTICHEAT",
+            description = string.format("Total de detecciones en las últimas 24 horas: **%d**", totalDetections),
+            color = 3447003,
+            fields = {
+                {
+                    name = "📈 Detecciones por Tipo",
+                    value = statsText ~= "" and statsText or "Sin detecciones",
+                    inline = false
+                }
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+            footer = {
+                text = "AIT-QB ANTICHEAT • Resumen Automático"
+            }
+        }
+
+        local payload = {
+            username = "AIT-QB Anticheat",
+            embeds = {embed}
+        }
+
+        PerformHttpRequest(Config.Anticheat.DiscordWebhook, function() end, 'POST',
+            json.encode(payload), {['Content-Type'] = 'application/json'})
+    end)
+end
+
+-- Programar resumen diario (cada 24 horas)
+CreateThread(function()
+    while true do
+        Wait(86400000) -- 24 horas
+        Anticheat.SendDailySummary()
+    end
+end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
 -- EVENTOS

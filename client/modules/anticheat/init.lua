@@ -447,6 +447,55 @@ AddEventHandler('ait-qb:client:anticheat:adminNotify', function(message)
     EndTextCommandThefeedPostTicker(true, true)
 end)
 
+-- Freeze del jugador (comando de admin)
+local isFrozen = false
+RegisterNetEvent('ait-qb:client:anticheat:freeze')
+AddEventHandler('ait-qb:client:anticheat:freeze', function(freeze)
+    isFrozen = freeze
+    local ped = PlayerPedId()
+
+    if freeze then
+        FreezeEntityPosition(ped, true)
+        SetEntityCollision(ped, false, false)
+
+        -- Mostrar mensaje
+        BeginTextCommandThefeedPost("STRING")
+        AddTextComponentSubstringPlayerName("~r~Has sido congelado por un administrador~s~")
+        EndTextCommandThefeedPostTicker(true, true)
+
+        -- Thread para mantener congelado
+        CreateThread(function()
+            while isFrozen do
+                Wait(0)
+                DisableAllControlActions(0)
+                FreezeEntityPosition(PlayerPedId(), true)
+            end
+        end)
+    else
+        FreezeEntityPosition(ped, false)
+        SetEntityCollision(ped, true, true)
+
+        BeginTextCommandThefeedPost("STRING")
+        AddTextComponentSubstringPlayerName("~g~Has sido descongelado~s~")
+        EndTextCommandThefeedPostTicker(true, true)
+    end
+end)
+
+-- Spectate (admin puede ver lo que hace el jugador)
+RegisterNetEvent('ait-qb:client:anticheat:spectate')
+AddEventHandler('ait-qb:client:anticheat:spectate', function(targetCoords)
+    if targetCoords then
+        SetEntityCoords(PlayerPedId(), targetCoords.x, targetCoords.y, targetCoords.z + 50.0, false, false, false, false)
+        FreezeEntityPosition(PlayerPedId(), true)
+        SetEntityVisible(PlayerPedId(), false, false)
+        SetEntityCollision(PlayerPedId(), false, false)
+    else
+        FreezeEntityPosition(PlayerPedId(), false)
+        SetEntityVisible(PlayerPedId(), true, false)
+        SetEntityCollision(PlayerPedId(), true, true)
+    end
+end)
+
 -- Enviar check periódico al servidor
 CreateThread(function()
     while true do
@@ -492,6 +541,106 @@ _G.TriggerServerEvent = function(eventName, ...)
 
     return originalTriggerServerEvent(eventName, ...)
 end
+
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+-- SISTEMA DE VERIFICACIÓN DE INTEGRIDAD
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+
+-- Responder a solicitud de verificación de integridad
+RegisterNetEvent('ait-qb:client:anticheat:integrityCheck')
+AddEventHandler('ait-qb:client:anticheat:integrityCheck', function()
+    local report = {
+        modifiedFiles = {},
+        injectedCode = false,
+        suspiciousProcesses = {},
+        resourceCount = GetNumResources(),
+        timestamp = GetGameTimer()
+    }
+
+    -- Verificar recursos cargados
+    local suspiciousResources = {}
+    for i = 0, GetNumResources() - 1 do
+        local resourceName = GetResourceByFindIndex(i)
+        if resourceName then
+            local lowerName = string.lower(resourceName)
+            -- Buscar patrones sospechosos
+            local suspiciousPatterns = {"cheat", "hack", "menu", "inject", "exec", "bypass"}
+            for _, pattern in ipairs(suspiciousPatterns) do
+                if lowerName:find(pattern) then
+                    table.insert(suspiciousResources, resourceName)
+                    break
+                end
+            end
+        end
+    end
+
+    if #suspiciousResources > 0 then
+        report.injectedCode = true
+        report.suspiciousProcesses = suspiciousResources
+    end
+
+    -- Enviar reporte al servidor
+    TriggerServerEvent('ait-qb:server:anticheat:integrityReport', report)
+end)
+
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+-- DETECCIÓN DE MODIFICACIÓN DE MEMORIA
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+
+-- Verificar valores imposibles que indican modificación de memoria
+CreateThread(function()
+    while true do
+        Wait(5000)
+
+        local ped = PlayerPedId()
+        if not DoesEntityExist(ped) then goto continue end
+
+        -- Verificar velocidad de movimiento (run multiplier)
+        local moveBlend = GetPedMovementClipset(ped)
+
+        -- Verificar si tiene armas que no debería
+        local weaponCount = 0
+        for _, weaponGroup in ipairs({
+            `GROUP_PISTOL`, `GROUP_SMG`, `GROUP_RIFLE`, `GROUP_MG`,
+            `GROUP_SHOTGUN`, `GROUP_SNIPER`, `GROUP_HEAVY`
+        }) do
+            if HasPedGotWeaponOfType(ped, GetBestPedWeapon(ped, weaponGroup)) then
+                weaponCount = weaponCount + 1
+            end
+        end
+
+        -- Si tiene demasiadas armas pesadas, es sospechoso
+        if weaponCount > 10 then
+            ClientAC.ReportDetection("suspicious_behavior", {
+                reason = "Cantidad anormal de armas",
+                count = weaponCount
+            })
+        end
+
+        ::continue::
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+-- ANTI-RESOURCE RESTART EXPLOIT
+-- ═══════════════════════════════════════════════════════════════════════════════════════
+
+-- Detectar si alguien intenta reiniciar recursos maliciosamente
+AddEventHandler('onResourceStart', function(resourceName)
+    -- Verificar si es un recurso nuevo sospechoso
+    local lowerName = string.lower(resourceName)
+    local suspiciousPatterns = {"cheat", "hack", "menu", "inject", "exec", "bypass", "trainer"}
+
+    for _, pattern in ipairs(suspiciousPatterns) do
+        if lowerName:find(pattern) then
+            ClientAC.ReportDetection("resource_injection", {
+                reason = string.format("Recurso sospechoso iniciado: %s", resourceName),
+                resource = resourceName
+            })
+            break
+        end
+    end
+end)
 
 -- Exportar módulo
 _G.ClientAC = ClientAC

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIT-QB Anticheat Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="anticheat-panel" class="panel hidden">
+        <div class="panel-header">
+            <div class="header-left">
+                <i class="fas fa-shield-alt"></i>
+                <span>AIT-QB ANTICHEAT</span>
+            </div>
+            <div class="header-right">
+                <span class="status-badge online">ACTIVO</span>
+                <button class="btn-close" onclick="closePanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-tabs">
+            <button class="tab active" data-tab="players" onclick="switchTab('players')">
+                <i class="fas fa-users"></i> Jugadores
+            </button>
+            <button class="tab" data-tab="actions" onclick="switchTab('actions')">
+                <i class="fas fa-gavel"></i> Acciones
+            </button>
+            <button class="tab" data-tab="logs" onclick="switchTab('logs')">
+                <i class="fas fa-list"></i> Logs
+            </button>
+            <button class="tab" data-tab="settings" onclick="switchTab('settings')">
+                <i class="fas fa-cog"></i> Config
+            </button>
+        </div>
+
+        <div class="panel-content">
+            <!-- Tab: Jugadores -->
+            <div id="tab-players" class="tab-content active">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="player-search" placeholder="Buscar jugador..." oninput="filterPlayers()">
+                </div>
+                <div class="players-list" id="players-list">
+                    <!-- Players will be loaded here -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Cargando jugadores...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Acciones Rápidas -->
+            <div id="tab-actions" class="tab-content">
+                <div class="actions-grid">
+                    <div class="action-card" onclick="showActionModal('ban')">
+                        <div class="action-icon red">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Banear Jugador</h4>
+                            <p>Ban permanente o temporal</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('kick')">
+                        <div class="action-icon orange">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Expulsar Jugador</h4>
+                            <p>Kick del servidor</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('freeze')">
+                        <div class="action-icon blue">
+                            <i class="fas fa-snowflake"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Congelar</h4>
+                            <p>Inmovilizar jugador</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('screenshot')">
+                        <div class="action-icon purple">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Screenshot</h4>
+                            <p>Capturar pantalla</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('spectate')">
+                        <div class="action-icon green">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Espectador</h4>
+                            <p>Ver jugador</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('whitelist')">
+                        <div class="action-icon cyan">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Whitelist</h4>
+                            <p>Gestionar whitelist</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('unban')">
+                        <div class="action-icon yellow">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Desbanear</h4>
+                            <p>Quitar ban</p>
+                        </div>
+                    </div>
+
+                    <div class="action-card" onclick="showActionModal('suspect')">
+                        <div class="action-icon pink">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="action-info">
+                            <h4>Marcar Sospechoso</h4>
+                            <p>Añadir strike</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Logs -->
+            <div id="tab-logs" class="tab-content">
+                <div class="logs-header">
+                    <div class="logs-filters">
+                        <select id="log-type-filter" onchange="filterLogs()">
+                            <option value="all">Todos los tipos</option>
+                            <option value="cheat_menu">Cheat Menu</option>
+                            <option value="teleport">Teleport</option>
+                            <option value="speedhack">Speedhack</option>
+                            <option value="godmode">Godmode</option>
+                            <option value="weapon_exploit">Armas</option>
+                            <option value="money_exploit">Dinero</option>
+                        </select>
+                        <button class="btn-refresh" onclick="refreshLogs()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="logs-list" id="logs-list">
+                    <!-- Logs will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Tab: Settings -->
+            <div id="tab-settings" class="tab-content">
+                <div class="settings-section">
+                    <h3><i class="fas fa-toggle-on"></i> Módulos</h3>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <span>Detección Teleport</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-teleport" checked onchange="toggleModule('teleport')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Detección Speedhack</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-speed" checked onchange="toggleModule('speed')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Detección Godmode</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-godmode" checked onchange="toggleModule('godmode')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Detección Armas</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-weapons" checked onchange="toggleModule('weapons')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Detección Dinero</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-money" checked onchange="toggleModule('money')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Detección Vehículos</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="toggle-vehicles" checked onchange="toggleModule('vehicles')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3><i class="fas fa-chart-bar"></i> Estadísticas</h3>
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-players">0</div>
+                            <div class="stat-label">Jugadores Online</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-bans">0</div>
+                            <div class="stat-label">Baneos Activos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-detections">0</div>
+                            <div class="stat-label">Detecciones (24h)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-kicks">0</div>
+                            <div class="stat-label">Kicks (24h)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para acciones -->
+    <div id="action-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Acción</h3>
+                <button class="btn-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" id="modal-confirm" onclick="confirmAction()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Context Menu -->
+    <div id="player-context-menu" class="context-menu hidden">
+        <div class="context-item" onclick="contextAction('check')">
+            <i class="fas fa-info-circle"></i> Ver Info
+        </div>
+        <div class="context-item" onclick="contextAction('freeze')">
+            <i class="fas fa-snowflake"></i> Congelar
+        </div>
+        <div class="context-item" onclick="contextAction('screenshot')">
+            <i class="fas fa-camera"></i> Screenshot
+        </div>
+        <div class="context-item" onclick="contextAction('spectate')">
+            <i class="fas fa-eye"></i> Espectador
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item" onclick="contextAction('kick')">
+            <i class="fas fa-user-slash"></i> Expulsar
+        </div>
+        <div class="context-item danger" onclick="contextAction('ban')">
+            <i class="fas fa-ban"></i> Banear
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

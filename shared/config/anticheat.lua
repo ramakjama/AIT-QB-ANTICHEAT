@@ -140,8 +140,36 @@ Config.Anticheat = {
             Enabled = true,
             MaxDistancePerTick = 500.0,     -- Distancia máxima permitida por tick
             MaxDistancePerSecond = 200.0,   -- Distancia máxima por segundo
-            GracePeriodOnSpawn = 10000,     -- Ms de gracia al spawnear
-            WhitelistedZones = {},          -- Coordenadas permitidas para TP
+            GracePeriodOnSpawn = 15000,     -- Ms de gracia al spawnear (15 segundos)
+            -- Zonas donde el teleport es permitido (spawn points, interiores, etc.)
+            WhitelistedZones = {
+                -- Spawns principales
+                {coords = vector3(-269.4, -955.3, 31.2), radius = 100.0, name = "Legion Square"},
+                {coords = vector3(428.7, -800.1, 29.5), radius = 100.0, name = "MRPD"},
+                {coords = vector3(307.8, -592.2, 43.3), radius = 100.0, name = "Pillbox Hospital"},
+                {coords = vector3(-1037.7, -2737.8, 20.2), radius = 150.0, name = "LSIA Airport"},
+                {coords = vector3(1747.0, 3273.7, 41.1), radius = 100.0, name = "Sandy Shores"},
+                {coords = vector3(-282.1, 6226.3, 31.5), radius = 100.0, name = "Paleto Bay"},
+                {coords = vector3(-449.2, -340.5, 34.5), radius = 50.0, name = "City Hall"},
+                {coords = vector3(215.7, -810.2, 30.7), radius = 50.0, name = "DMV"},
+                -- Cárceles
+                {coords = vector3(1845.0, 2585.0, 45.7), radius = 200.0, name = "Prison"},
+                {coords = vector3(1691.3, 2565.7, 45.6), radius = 200.0, name = "Bolingbroke"},
+                -- Garajes comunes
+                {coords = vector3(-338.2, -764.6, 33.5), radius = 50.0, name = "Garage 1"},
+                {coords = vector3(-1155.6, -1519.5, 4.4), radius = 50.0, name = "Del Perro Garage"},
+                -- Interiores (los TPs a interiores son normales)
+                {coords = vector3(452.4, -980.8, 30.7), radius = 30.0, name = "MRPD Interior"},
+                {coords = vector3(-447.2, 6006.3, 31.7), radius = 30.0, name = "Paleto Sheriff"},
+                {coords = vector3(1855.3, 3683.7, 34.3), radius = 30.0, name = "Sandy Sheriff"},
+                -- Casinos
+                {coords = vector3(935.1, 47.2, 81.1), radius = 100.0, name = "Casino"},
+                {coords = vector3(1089.1, 206.0, -48.9), radius = 100.0, name = "Casino Interior"},
+                -- Apartamentos/Housing (zona general)
+                {coords = vector3(-774.2, 312.1, 85.7), radius = 50.0, name = "Alta Apartments"},
+                {coords = vector3(-614.5, 36.2, 43.6), radius = 50.0, name = "Tinsel Towers"},
+                {coords = vector3(-1452.6, -540.7, 34.7), radius = 50.0, name = "Vespucci Apartments"},
+            },
         },
 
         -- Speedhack detection
@@ -312,32 +340,80 @@ Config.Anticheat = {
             -- "steam:xxxxx",
         },
 
-        -- Recursos permitidos
+        -- Recursos permitidos (AÑADE TODOS TUS RECURSOS AQUÍ)
         Resources = {
+            -- === TU RECURSO PRINCIPAL ===
             "ait-qb",
-            "qb-core",
-            "ox_lib",
-            "oxmysql",
-            "ox_inventory",
-            "qb-inventory",
-            "qb-target",
-            "ox_target",
-            "qb-menu",
-            "ox_doorlock",
-            "qb-doorlock",
-            "qb-banking",
-            "qb-phone",
-            "qb-policejob",
-            "qb-ambulancejob",
-            "qb-mechanicjob",
-            "qb-vehicleshop",
-            "qb-clothing",
-            "qb-multicharacter",
-            "qb-spawn",
-            "qb-apartments",
-            "qb-garages",
-            "qb-hud",
-            "qb-smallresources",
+
+            -- === FRAMEWORKS ===
+            "qb-core", "es_extended", "esx_core", "vrp", "vRP",
+
+            -- === OX ECOSYSTEM ===
+            "ox_lib", "oxmysql", "ox_inventory", "ox_target", "ox_doorlock",
+            "ox_fuel", "ox_police", "ox_banking",
+
+            -- === QB CORE RESOURCES ===
+            "qb-inventory", "qb-target", "qb-menu", "qb-input",
+            "qb-doorlock", "qb-banking", "qb-phone", "qb-radialmenu",
+            "qb-policejob", "qb-ambulancejob", "qb-mechanicjob",
+            "qb-vehicleshop", "qb-clothing", "qb-multicharacter",
+            "qb-spawn", "qb-apartments", "qb-garages", "qb-hud",
+            "qb-smallresources", "qb-houses", "qb-houserobbery",
+            "qb-storerobbery", "qb-bankrobbery", "qb-jewelery",
+            "qb-shops", "qb-weathersync", "qb-adminmenu",
+            "qb-weapons", "qb-drugs", "qb-truckerjob", "qb-taxijob",
+            "qb-towjob", "qb-diving", "qb-fishing", "qb-vineyard",
+            "qb-farming", "qb-recyclejob", "qb-garbagejob",
+            "qb-deliveries", "qb-hotdogjob", "qb-newsjob",
+            "qb-lapraces", "qb-streetraces", "qb-traphouse",
+            "qb-weed", "qb-methlab", "qb-coke", "qb-prison",
+            "qb-jail", "qb-cityhall", "qb-dmv", "qb-diving",
+
+            -- === ESX RESOURCES ===
+            "esx_billing", "esx_society", "esx_addonaccount",
+            "esx_addoninventory", "esx_banking", "esx_ambulancejob",
+            "esx_policejob", "esx_mechanicjob", "esx_vehicleshop",
+            "esx_identity", "esx_skin", "esx_multicharacter",
+
+            -- === VOIP ===
+            "pma-voice", "mumble-voip", "tokovoip", "saltychat",
+
+            -- === UI/HUD ===
+            "ps-hud", "qb-hud", "esx_hud", "cd_drawtextui",
+            "progressbar", "qb-progressbar",
+
+            -- === INVENTARIOS ===
+            "ps-inventory", "lj-inventory", "qs-inventory",
+            "codem-inventory", "core_inventory",
+
+            -- === HOUSING ===
+            "ps-housing", "qb-houses", "esx_property", "loaf_housing",
+
+            -- === PHONES ===
+            "qs-smartphone", "lb-phone", "gks-phone", "npwd",
+            "gcphone", "qb-phone",
+
+            -- === ADMIN ===
+            "txAdmin", "vMenu", "qb-adminmenu", "esx_admin",
+            "Starter_Admin", "admin_menu",
+
+            -- === MAPS/MLO ===
+            "bob74_ipl", "fivem-map-hipster", "fivem-map-skater",
+
+            -- === OTROS COMUNES ===
+            "dpemotes", "rpemotes", "scully_emotemenu",
+            "interact-sound", "xsound", "cd_easytime",
+            "mhacking", "ps-mdt", "qb-mdt", "bcc-mdt",
+            "renewed-banking", "Renewed-Weaponscarrying",
+            "cw-rep", "wasabi_police", "wasabi_ambulance",
+            "jg-mechanic", "jg-dealerships", "jg-advanceddoors",
+            "okokBanking", "okokBilling", "okokGarage",
+            "mythic_notify", "nh-context", "nh-keyboard",
+            "bob74_ipl", "keep-harmony", "keep-gunstore",
+            "baseline-housing", "bl_banking", "bl_apartment",
+
+            -- === SCREENSHOT (para evidencia) ===
+            "screenshot-basic",
         },
 
         -- IPs del servidor (para internal requests)
