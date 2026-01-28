@@ -67,97 +67,10 @@ server_scripts {
     -- Driver MySQL
     '@oxmysql/lib/MySQL.lua',
 
-    -- Core Engine
-    'core/bootstrap.lua',
-    'core/di.lua',
-    'core/eventbus.lua',
-    'core/state.lua',
-    'core/cache.lua',
-    'core/scheduler.lua',
-    'core/rbac.lua',
-    'core/audit.lua',
-    'core/ratelimit.lua',
-    'core/featureflags.lua',
-    'core/rules.lua',
-    'core/exports.lua',
-
-    -- Bridges
-    'bridges/qbcore.lua',
-    'bridges/ox.lua',
-    'bridges/inventory_ox.lua',
-    'bridges/inventory_qb.lua',
-
-    -- Database
-    'server/db/connection.lua',
-    'server/db/repositories/base.lua',
-    'server/db/repositories/player.lua',
-    'server/db/repositories/character.lua',
-
-    -- Engines - Economy
-    'server/engines/economy/init.lua',
-
-    -- Engines - Inventory
-    'server/engines/inventory/init.lua',
-
-    -- Engines - Factions
-    'server/engines/factions/init.lua',
-    'server/engines/factions/duties.lua',
-    'server/engines/factions/management.lua',
-
-    -- Engines - Missions
-    'server/engines/missions/init.lua',
-    'server/engines/missions/generator.lua',
-    'server/engines/missions/tracker.lua',
-
-    -- Engines - Events
-    'server/engines/events/init.lua',
-    'server/engines/events/scheduler.lua',
-    'server/engines/events/types/init.lua',
-
-    -- Engines - Vehicles
-    'server/engines/vehicles/init.lua',
-    'server/engines/vehicles/garage.lua',
-    'server/engines/vehicles/fuel.lua',
-    'server/engines/vehicles/keys.lua',
-
-    -- Engines - Housing
-    'server/engines/housing/init.lua',
-    'server/engines/housing/furniture.lua',
-    'server/engines/housing/access.lua',
-
-    -- Engines - Combat
-    'server/engines/combat/init.lua',
-    'server/engines/combat/death.lua',
-    'server/engines/combat/weapons.lua',
-
-    -- Engines - AI
-    'server/engines/ai/init.lua',
-    'server/engines/ai/behavior.lua',
-    'server/engines/ai/spawner.lua',
-
-    -- Engines - Justice
-    'server/engines/justice/init.lua',
-    'server/engines/justice/wanted.lua',
-    'server/engines/justice/jail.lua',
-
-    -- Engines - Anticheat (Protección contra RedEngine, PhazeMenu, etc.)
-    'server/engines/anticheat/signatures.lua',
-    'server/engines/anticheat/validator.lua',
-    'server/engines/anticheat/init.lua',
-    'server/engines/anticheat/commands.lua',
-    'server/engines/anticheat/advanced.lua',
-    'server/engines/anticheat/panel.lua',
-
-    -- Admin
-    'admin/init.lua',
-    'admin/commands.lua',
-
-    -- Server Handlers
-    'server/handlers/jobs.lua',
-    'server/handlers/phone.lua',
-
-    -- Server principal
-    'server/main.lua',
+    -- ⚡ SISTEMA DE ARRANQUE SEGURO ⚡
+    -- Este script carga todos los módulos en el orden correcto
+    -- para prevenir crashes por sobrecarga
+    'installer/startup.lua',
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
@@ -165,48 +78,9 @@ server_scripts {
 -- ═══════════════════════════════════════════════════════════════════════════════════════
 
 client_scripts {
-    -- Core del cliente
-    'client/main.lua',
-
-    -- Módulos del cliente
-    'client/modules/hud/init.lua',
-    'client/modules/interactions/init.lua',
-    'client/modules/character/init.lua',
-    'client/modules/vehicles/init.lua',
-
-    -- Anticheat del cliente (Protección activa)
-    'client/modules/anticheat/init.lua',
-    'client/modules/anticheat/nui.lua',
-
-    -- Jobs del cliente - Emergencias
-    'modules/jobs/police/init.lua',
-    'modules/jobs/ambulance/init.lua',
-
-    -- Jobs legales
-    'modules/jobs/mechanic/init.lua',
-    'modules/jobs/taxi/init.lua',
-    'modules/jobs/trucker/init.lua',
-    'modules/jobs/garbage/init.lua',
-    'modules/jobs/fishing/init.lua',
-    'modules/jobs/mining/init.lua',
-    'modules/jobs/lumberjack/init.lua',
-    'modules/jobs/hunting/init.lua',
-    'modules/jobs/delivery/init.lua',
-
-    -- Jobs ilegales
-    'modules/jobs/drugs/init.lua',
-    'modules/jobs/robbery/init.lua',
-    'modules/jobs/chopshop/init.lua',
-    'modules/jobs/weapons/init.lua',
-    'modules/jobs/laundering/init.lua',
-    'modules/jobs/gangs/init.lua',
-
-    -- Módulos adicionales del cliente
-    'client/modules/phone/init.lua',
-    'client/modules/housing/init.lua',
-    'client/modules/admin/init.lua',
-    'client/modules/scoreboard/init.lua',
-    'client/modules/inventory/init.lua',
+    -- ⚡ SISTEMA DE ARRANQUE SEGURO ⚡
+    -- El cliente se carga de forma controlada desde startup.lua
+    -- No es necesario listar los scripts aquí
 }
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════

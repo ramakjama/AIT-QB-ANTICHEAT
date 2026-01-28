@@ -1,0 +1,75 @@
+{
+  "mode": "normal",
+  "version": "1.0.0",
+  "firstRun": true,
+
+  "server": {
+    "name": "AIT-QB Roleplay",
+    "maxPlayers": 128,
+    "language": "es"
+  },
+
+  "database": {
+    "installed": false,
+    "autoMigrate": true
+  },
+
+  "engines": {
+    "economy": true,
+    "inventory": true,
+    "factions": true,
+    "missions": false,
+    "events": false,
+    "vehicles": true,
+    "housing": true,
+    "combat": true,
+    "ai": false,
+    "justice": true,
+    "anticheat": true
+  },
+
+  "jobs": {
+    "emergency": {
+      "police": true,
+      "ambulance": true
+    },
+    "legal": {
+      "mechanic": true,
+      "taxi": false,
+      "trucker": false,
+      "garbage": false,
+      "fishing": false,
+      "mining": false,
+      "lumberjack": false,
+      "hunting": false,
+      "delivery": false
+    },
+    "illegal": {
+      "drugs": false,
+      "robbery": false,
+      "chopshop": false,
+      "weapons": false,
+      "laundering": false,
+      "gangs": false
+    }
+  },
+
+  "modules": {
+    "hud": true,
+    "interactions": true,
+    "character": true,
+    "vehicles": true,
+    "phone": true,
+    "housing": true,
+    "admin": true,
+    "scoreboard": true,
+    "inventory_ui": true,
+    "anticheat_client": true
+  },
+
+  "advanced": {
+    "loadDelay": 200,
+    "safeModeOnError": true,
+    "verboseLogging": true
+  }
+}
